@@ -3,32 +3,37 @@ import { Server } from 'socket.io';
 
 @WebSocketGateway()
 export class EventsGateway {
-  private statusData: number[] = [0, 0, 0, 0];
   private sendingData: boolean = false;
 
   @WebSocketServer()
   server: Server;
   
   @SubscribeMessage('get-status')
-  handleMessage(): number[] {
-    return this.getStatusData();
+  handleMessage() {
+    this.sendStatusData();
+    
+    if (!this.sendingData) {
+      this.startSendingInterval();
+      this.sendingData = true;
+    }
   }
 
   private sendStatusData() {
+    this.server.emit('new-status', this.getStatusData());
+  }
+
+  private startSendingInterval() {
     setInterval(() => {
       this.server.emit('new-status', this.getStatusData());
     }, 10000);
   }
 
   private getStatusData(): number[] {
-    if (!this.sendingData) {
-      this.sendStatusData();
-      this.sendingData = true;
-    }
+    let statusData = [];
     
-    for (let status of this.statusData) {
-      status = Math.floor(Math.random() * Math.floor(3));
+    for (let i = 1; i <= 4; i++) {
+      statusData.push(Math.floor(Math.random() * Math.floor(3)));
     }
-    return this.statusData;
+    return statusData;
   }
 }
