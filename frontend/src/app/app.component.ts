@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { EventsService } from './events.service';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,13 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'frontend';
+  public statusData: number[] = [];
+
+  constructor(
+    private eventsService: EventsService
+  ) {
+    eventsService.statusData.subscribe((statusData: number[]) => {
+      this.statusData = statusData;
+    });
+  }
 }
